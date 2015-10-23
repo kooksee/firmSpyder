@@ -1,0 +1,58 @@
+Druid 项目GIT仓库使用规范
+
+0、初始化仓库：
+git clone https://git.coding.net/firmware/Druid.git # https方式，需要输入coding的用户名密码，比较麻烦
+git clone git@git.coding.net:firmware/Druid.git # ssh方式，不需要输入用户名密码，使用方便，但需要进行证书配置
+#证书配置方法
+# 1.ssh-keygen 然后一直回车，在~/.ssh/下生成一对ssh公私钥，id_rsa和id_rsa.pub
+# 2.cat ~/.ssh/id_rsa.pub 将屏幕上打印出来的公钥如：ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDaBvrWfia3mqwa0ROYz/sQhtTLEOHXF9kMVWnw89AgxNWLbMo44Aj/V/XGhjZeCFwLpoOce7EYVRXz8rzYmBhOgIJkGAWG2xWcGHSRLdMCOhqqRv2CG7it8fdMisZmzoumW3aEwQuR0Clm35s6Y5niv81/WBeNVd7l+TpNg4qNId0TjAdczvHwu1X6IBmuZnUAD5jYZH0V1rXzSSZU+D9ltWPSfe8fihExSrXiEB2xOi6Qp19pRs61gXgvis/7eBVKgMm5WH7Oy4NV5U6XCHfJSn/E/jv/rvRavAlxfajMFNcYLM3gK/fE43GwKsxETR2uY7oZ/je+dwbVaawMa0MN 
+#将其复制黏贴到账户设置中的ssh公钥中并提交
+
+git checkout -b dev			# 创建一个叫作dev的分支，所有修改均在dev上
+git branch -a               # 查看本地及远程所有的分支以及当前所在的分支
+git config user.email <youremail>
+git config user.name <yourname>
+
+git config --global core.editor vim
+							# (非强制）采用vim作为编辑器
+
+1、从远程仓库获取：
+git checkout master			# 切换到master分支
+git pull					# 获取远程仓库中最新版本的代码
+git checkout dev			# 切换到dev分支
+git merge master			# 将master分支合并到dev中，实现开发分支与主分支同步
+							 
+2、创建提交:
+git status					# 查看目前文件状态
+							# 如有临时文件不需要提交和追溯，请修改.gitignore
+
+git commit					# -a 将所有修改过的文件到缓冲区中
+							# （如有新创建的文件请预先git add）
+
+3、推送到远程仓库：			# 原则上只有稳定、可运行的版本才进行推送
+							# 进行此步骤之前，请先进行步骤2
+git checkout master			
+git pull					# 获取最新修改
+git merge dev				# 将dev分支合并到master中
+							# 如有冲突请手动解决
+git push					# 推送
+
+git checkout dev			# 如需继续工作，请重新切换回dev分支
+
+4、重置版本（慎用）					
+| git reset					# 重置版本库为上一次提交后的状态，但不还原文件
+| git reset --hard			# 重置版本库为上一次提交后的状态，同时还原文件
+							# 可指定版本号 git reset <version>
+
+5、还原文件
+git checkout <version> <filename>
+							# 将文件还原为指定提交版本的内容
+							# <version> 为 -- 是上一次提交的版本
+
+6、其它工具
+git diff					# 比较版本/文件差异
+git log --graph				# 查看版本记录
+git reflog					# 记录所有命令/版本号
+git mergetool				# 合并工具
+
+

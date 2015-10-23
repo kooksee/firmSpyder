@@ -1,0 +1,30 @@
+#encoding=utf-8
+import pymongo
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+from scrapy import Item,Field
+class UrlItem(Item):
+     _id=Field()
+     name=Field()
+     start_urls=Field()
+     basic_url=Field()
+     suffix=Field()
+
+     def __init__(self):
+         client = pymongo.MongoClient("localhost",27017)
+         self.__collection = client['firmware']['url_items']
+
+     def save(self):
+        self.__collection.insert(self)
+if __name__=='__main__':
+    ui=UrlItem()
+    ui['name']='xxx'
+    ui.save()
+#    collection.insert( {"name":"steven1","realname":u"测试3","age":23})
+
+
+
+
+
+

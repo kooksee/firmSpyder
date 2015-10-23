@@ -1,0 +1,21 @@
+# -*- coding: utf-8 -*-
+import os
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
+from mycrawler.dbUtil import download_process
+import time
+
+
+def process_download():
+    print '厂商    已爬取    已下载'
+    pp = list(download_process())
+    for p in pp[0:-1]:
+        print '%-10s%-10s%s' % (p[0], p[1], p[2])
+    sys.stdout.flush()
+    time.sleep(1)
+    os.system('clear')
+    process_download()
+process_download()
+

@@ -1,0 +1,71 @@
+#encoding=utf-8
+from cmd import Cmd
+import os
+import sys
+import pymongo
+from pyshell import cmd
+from mycrawler.dbUtil import DbUtil
+
+
+def not_exit(func):
+  def _func(*args, **kwargs):
+    try:
+      res = func(*args, **kwargs)
+      return res
+    except:
+      print "there is a wrong in %s, please input 'help %s' to get help" % (func.__name__, func.__name__[3:])
+      return None
+  return _func
+
+class CLI(Cmd):
+    def __init__(self):
+        Cmd.__init__(self)
+	#设置命令提示符
+        self.prompt = "> "
+        self.intro = '欢迎进入爬虫控制台,输入help查看帮助'
+        self.all_spiders=[]
+
+    def do_add(self,args):
+        print args
+        data = dict([(bb.split(' ')[0],len(bb.split(' ')[1:])==1 and bb.split(' ')[1] or bb.split(' ')[1:] ) for bb in args.split(';')])
+        print data
+        DbUtil().conn().collection('url_items').insert(data)
+    def help_add(self):
+        print '新增连接到数据库中'
+        print '输入格式,比如:add name abb;start_urls www.baidu.com'
+	print 'add是添加命令，后面的是参数'
+
+    def do_list_spider(self,args):
+         print cmd('scrapy list')
+    def help_list_spider(self):
+        print "列出所有的爬虫"
+
+    def do_run_spider(self,arg):
+        cmd('./run_spider.sh '+arg)
+        #import os
+        #os.system('./run_spider.sh '+arg)
+    def help_run_spider(self):
+        print "运行一个爬虫，例如scrapy crawl abb"
+
+    def do_run_all_spiders(self,arg):
+        s = cmd('scrapy list').value().split('\n')
+        if not s:
+            return
+        import os
+        for spider in s:
+            #os.system('./run_spider.sh '+spider)
+            cmd('./run_spider.sh '+spider)
+        del s
+
+    def help_run_all_spiders(self):
+        print "运行所有的爬虫"
+
+    def do_quit(self, arg):
+        return True
+    def help_quit(self):
+        print "退出系统"
+    # define the shortcuts
+    do_q = do_quit
+if __name__ =="__main__":
+    cli = CLI()
+    cli.cmdloop()

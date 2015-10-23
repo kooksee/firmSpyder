@@ -1,0 +1,93 @@
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+
+import shlex
+from subprocess import Popen
+from subprocess import PIPE
+
+
+def py_ver():
+    '''
+    得到python的版本
+    '''
+    import sys
+    return sys.version_info[0]
+_ver = py_ver()
+
+if _ver == 2:
+    builtin_str = str
+    bytes = str
+    str = unicode
+    basestring = basestring
+    numeric_types = (int, long, float)
+
+elif _ver == 3:
+    builtin_str = str
+    str = str
+    bytes = bytes
+    basestring = (str, bytes)
+    numeric_types = (int, float)
+else:
+    raise ValueError(u'python 版本不正确')
+del _ver
+
+def parse_shell_token(t):
+    import os
+    # handle '~'
+    t = os.path.expanduser(t)
+    # handle env var
+    t = os.path.expandvars(t)
+    return t
+
+
+def pipe_to_tmp(data):
+    '''
+    把管道或者内存中的数据缓存到临时文件
+    '''
+    if isinstance(data, (unicode, str)):
+        data = data.encode('utf-8')
+
+    import tempfile
+    stdin_tmp = tempfile.SpooledTemporaryFile()
+    stdin_tmp.write(data)
+    stdin_tmp.seek(0)
+    return stdin_tmp
+
+
+class cmd(object):
+     def __init__(self, *args, **kwargs):
+        self.cmd(*args, **kwargs)
+
+    def cmd(self, cmd, env=None, stdout=PIPE):
+        p = Popen(
+            map(parse_shell_token, shlex.split(cmd, posix=False)),
+             shell=True, stdout=stdout, stdin=PIPE, stderr=PIPE, env=env
+        )
+        self.stdout, self.stderr = p.communicate(input=self.stdout)
+        self.code = p.returncode
+        return self
+    def __repr__(self):
+        return self.value()
+
+    def __unicode__(self):
+        return self.value()
+
+    def __str__(self):
+        return self.value()
+
+    def __nonzero__(self):
+        return self.__bool__()
+
+    def __bool__(self):
+        return bool(self.value())
+
+    def value(self):
+        if not self.stdout:
+            return ''
+        return self.stdout.strip().decode(encoding='UTF-8')
+
+if __name__ == '__main__':
+     #print cmd('ls -l')
+     #print cmd('ls . | grep py')
+    print cmd('python -h')
+     #print cmd('ls ~')
